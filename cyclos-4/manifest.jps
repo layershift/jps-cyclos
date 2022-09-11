@@ -22,6 +22,7 @@
       "email": "Instance address: [${env.url}](${env.url}) \n\nTo add custom domain name for your Cyclos installation follow the steps described in our [documentation](http://docs.jelastic.com/custom-domains)"
     },
     "env": {
+      "sslstate": true,
       "topology": {
         "engine": "java11",
         "nodes": [
