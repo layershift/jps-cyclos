@@ -18,8 +18,8 @@
     "logo": "/images/cyclos.png",
     "version": "4.15.8",
     "success": {
-      "text": "Instance address: [${env.url}](${env.url}) </br></br>To add custom domain name for your Cyclos installation follow the steps described in our [documentation](http://docs.jelastic.com/custom-domains)",
-      "email": "Instance address: [${env.url}](${env.url}) </br></br>To add custom domain name for your Cyclos installation follow the steps described in our [documentation](http://docs.jelastic.com/custom-domains)"
+      "text": "Instance address: [${env.url}](${env.url}) \n\nTo add custom domain name for your Cyclos installation follow the steps described in our [documentation](http://docs.jelastic.com/custom-domains)",
+      "email": "Instance address: [${env.url}](${env.url}) \n\nTo add custom domain name for your Cyclos installation follow the steps described in our [documentation](http://docs.jelastic.com/custom-domains)"
     },
     "env": {
       "topology": {
@@ -31,7 +31,7 @@
           },
           {
             "cloudlets": 8,
-            "nodeType": "postgres9"
+            "nodeType": "postgresql"
           }
         ]
       }
@@ -39,7 +39,6 @@
     "onInstall": {
       "call": [
         "deployment",
-        "pgsqlPassworReset",
         "configuringApp"
       ]
     },
@@ -80,7 +79,7 @@
           {
             "executeShellCommands": [
               {
-                "nodeType": "postgres9",
+                "nodeType": "sqldb",
                 "user": "root",
                 "commands": [
                   "curl -sSfL \"${baseUrl}/cyclos-4/scripts/install.sh\" -o ${SERVER_SCRIPTS}/install.sh 2>&1",
@@ -103,7 +102,7 @@
                 "replacements": [
                   {
                     "pattern": "cyclos.datasource.jdbcUrl = jdbc:postgresql://localhost/cyclos4",
-                    "replacement": "cyclos.datasource.jdbcUrl = jdbc:postgresql://${nodes.postgres9.address}/cyclos4"
+                    "replacement": "cyclos.datasource.jdbcUrl = jdbc:postgresql://${nodes.sqldb.address}/cyclos4"
                   },
                   {
                     "pattern": "cyclos.datasource.user = cyclos",
