@@ -17,12 +17,13 @@ export PGPASSWORD;
 
 $psql postgres webadmin << EOF
      CREATE USER ${_USER} WITH PASSWORD '${_PASSWORD}';
-     CREATE DATABASE ${_DBNAME} OWNER ${_USER};
-     CREATE EXTENSION CUBE;
-     CREATE EXTENSION EARTHDISTANCE;
-     CREATE EXTENSION POSTGIS;
-     CREATE EXTENSION UNAcCENT;
-     CREATE EXTENSION pgcrypto;
+     CREATE DATABASE ${_DBNAME} ENCODING 'UTF-8' TEMPLATE template0 OWNER ${_USER};
+     \c cyclos4;
+     create extension cube;
+     create extension earthdistance;
+     create extension postgis;
+     create extension unaccent;
+     create extension pgcrypto;
 EOF
  
 #$wget "${_DUMP_URL}" -O dump.sql;
