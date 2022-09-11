@@ -2,7 +2,6 @@
   "jpsVersion": "0.9",
   "jpsType": "install",
   "application": {
-    "logo": "https://github.com/jelastic-jps/cyclos/raw/master/images/cyclos.png",
     "description": {
       "en": "Cyclos 4 PRO is our payment platform for large businesses and organisations. It is secure and reliable JAVA software that can be installed on your server. Both application server as the database server are fully clusterable. It offers mobile banking (Mobile app, SMS, USSD*, and IVR*), online banking and much more."
     },
@@ -15,10 +14,12 @@
     ],
     "type": "java",
     "homepage": "http://www.cyclos.org/",
+    "baseUrl": "https://raw.githubusercontent.com/layershift/jps-cyclos/master",
+    "logo": "/images/cyclos.png",
     "version": "4.15.8",
     "success": {
-      "text": "Instance address: <a href='${env.url}' target='_blank'>${env.url}</a> </br></br>To add custom domain name for your Cyclos installation follow the steps described in our <a href='http://docs.jelastic.com/custom-domains' target='_blank'>documentation</a>",
-      "email": "Instance address: <a href='${env.url}' target='_blank'>${env.url}</a> </br></br>To add custom domain name for your Cyclos installation follow the steps described in our <a href='http://docs.jelastic.com/custom-domains' target='_blank'>documentation</a>"
+      "text": "Instance address: [${env.url}](${env.url}) </br></br>To add custom domain name for your Cyclos installation follow the steps described in our [documentation](http://docs.jelastic.com/custom-domains)",
+      "email": "Instance address: [${env.url}](${env.url}) </br></br>To add custom domain name for your Cyclos installation follow the steps described in our [documentation](http://docs.jelastic.com/custom-domains)"
     },
     "env": {
       "topology": {
@@ -38,6 +39,7 @@
     "onInstall": {
       "call": [
         "deployment",
+        "pgsqlPassworReset",
         "configuringApp"
       ]
     },
@@ -57,6 +59,22 @@
         ]
       },
       {
+        "id": "pgsqlPassworReset",
+        "onCall": [
+          {
+            "api": [
+              {
+                "method": "env.control.resetservicepassword",
+                "params": {
+                  "nodeGroup": "sqldb",
+                  "password": "${nodes.sqldb.password}"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
         "id": "configuringApp",
         "onCall": [
           {
@@ -65,8 +83,14 @@
                 "nodeType": "postgres9",
                 "user": "root",
                 "commands": [
-                  "curl -sSfL \"https://github.com/jelastic-jps/cyclos/raw/master/cyclos-4/scripts/install.sh\" -o ${SERVER_SCRIPTS}/install.sh 2>&1",
+                  "curl -sSfL \"${baseUrl}/cyclos-4/scripts/install.sh\" -o ${SERVER_SCRIPTS}/install.sh 2>&1",
                   "/bin/bash ${SERVER_SCRIPTS}/install.sh \"cyclos\" \"cyclos4\" \"${user.appPassword}\" \"${nodes.sqldb.password}\" 2>>${SERVER_SCRIPTS}/install.log 1>>${SERVER_SCRIPTS}/install.log"
+                ]
+              },
+              {
+                "nodeType": "cp",
+                "commands": [
+                  "cp -f ${tomcat.WEBAPPS}/ROOT/WEB-INF/classes/cyclos-release.properties ${tomcat.WEBAPPS}/ROOT/WEB-INF/classes/cyclos.properties"
                 ]
               }
             ]
@@ -74,24 +98,20 @@
           {
             "replaceInFile": [
               {
-                "path": "${WEBAPPS}/ROOT/WEB-INF/classes/cyclos.properties",
-                "nodeType": "tomcat7",
+                "path": "${tomcat.WEBAPPS}/ROOT/WEB-INF/classes/cyclos.properties",
+                "nodeType": "cp",
                 "replacements": [
                   {
-                    "pattern": "{DB_HOST}",
-                    "replacement": "${nodes.postgres9.address}"
+                    "pattern": "cyclos.datasource.jdbcUrl = jdbc:postgresql://localhost/cyclos4",
+                    "replacement": "cyclos.datasource.jdbcUrl = jdbc:postgresql://${nodes.postgres9.address}/cyclos4"
                   },
                   {
-                    "pattern": "{DB_USER}",
-                    "replacement": "cyclos"
+                    "pattern": "cyclos.datasource.user = cyclos",
+                    "replacement": "cyclos.datasource.user = cyclos"
                   },
                   {
-                    "pattern": "{DB_PASSWORD}",
-                    "replacement": "${user.appPassword}"
-                  },
-                  {
-                    "pattern": "{DB_NAME}",
-                    "replacement": "cyclos4"
+                    "pattern": "cyclos.datasource.password = cyclos",
+                    "replacement": "cyclos.datasource.password = ${user.appPassword}"
                   }
                 ]
               }
@@ -99,8 +119,7 @@
           },
           {
             "restartNodes": {
-              "nodeType": "tomca
-              .t7"
+              "nodeType": "cp"
             }
           }
         ]

@@ -22,15 +22,16 @@ $psql postgres webadmin << EOF
      CREATE EXTENSION EARTHDISTANCE;
      CREATE EXTENSION POSTGIS;
      CREATE EXTENSION UNAcCENT;
+     CREATE EXTENSION pgcrypto;
 EOF
  
-$wget "${_DUMP_URL}" -O dump.sql;
-$psql ${_DBNAME} webadmin < dump.sql;
-$psql ${_DBNAME} webadmin << EOF
-     update id_cipher_rounds set
-	mask = (random() * 9999999999999)::bigint * case when random() < 0.5 then 1 else -1 end,
-        rotate_bits = (random() * 62)::int + 1;
-EOF
+#$wget "${_DUMP_URL}" -O dump.sql;
+#$psql ${_DBNAME} webadmin < dump.sql;
+#$psql ${_DBNAME} webadmin << EOF
+#     update id_cipher_rounds set
+#	mask = (random() * 9999999999999)::bigint * case when random() < 0.5 then 1 else -1 end,
+#        rotate_bits = (random() * 62)::int + 1;
+#EOF
 
 
 echo -e  "# IMPORTANT NOTE! \n# Please make sure there is a blank line after the last cronjob entry.\n\n" | crontab -;
