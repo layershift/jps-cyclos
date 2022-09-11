@@ -50,7 +50,7 @@
           {
             "deploy": [
               {
-                "name": "cyclos4-15-8.war",
+                "name": "cyclos-4.15.8.war",
                 "context": "ROOT",
                 "archive": "https://jps.layershift.com/cyclos/cyclos-4/dumps/cyclos.zip"
               }
